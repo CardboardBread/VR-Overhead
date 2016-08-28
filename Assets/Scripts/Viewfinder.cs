@@ -3,14 +3,9 @@ using System.Collections;
 
 public class ViewFinder : MonoBehaviour {
 
-    private Vector3 gazePoint;
-    public CursorController cursor;
     public string actionButton;
-    private bool buttonPressed;
-
-	void Start () {
-        cursor = GameObject.Find("Cursor").GetComponent<CursorController>();
-	}
+    private Vector3 gazeStart;
+    private Vector3 gazeEnd;
 	
 	void Update () {
         Ray ray;
@@ -21,19 +16,38 @@ public class ViewFinder : MonoBehaviour {
         
         if (Input.GetButtonDown(actionButton))
         {
-            buttonPressed = true;
+            if (Physics.Raycast(ray, out hit))
+            {
+                gazeStart = hit.point;
+                placeCursor(gazeStart, 1);
+            }
+                
         }
         if (Input.GetButtonUp(actionButton))
         {
-            buttonPressed = false;
-        }
-        if (buttonPressed == true)
-        {
             if (Physics.Raycast(ray, out hit))
             {
-                gazePoint = hit.point;
-                cursor.pingPosition(gazePoint);
+                gazeEnd = hit.point;
             }
+        }
+    }
+
+    void placeCursor (Vector3 position, int type)
+    {
+        // generate cursor prefab at position, tell it what type it needs to be
+        // type is determined from checkdistance, if a direction is to be faced once the destination is reached
+    }
+    
+    bool checkDistance (Vector3 start, Vector3 end, float minimum)
+    {
+        float distance = Mathf.Sqrt(Mathf.Pow(end.x - start.x, 2) + Mathf.Pow(end.y - start.y, 2) + Mathf.Pow(end.z - start.z, 2));
+        if (distance > minimum)
+        {
+            return true;
+        }
+         else
+        {
+            return false;
         }
     }
 }

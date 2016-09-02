@@ -4,9 +4,11 @@ using System.Collections;
 public class ViewFinder : MonoBehaviour {
 
     public string actionButton;
-    private Vector3 gazeStart;
-    private Vector3 gazeEnd;
-    public Object cursor;
+    public Vector3 gazeStart;
+    public Vector3 gazeEnd;
+    public GameObject pointCursor;
+    public GameObject directionCursor;
+    private CursorController oldCursor;
 	
 	void Update () {
         Ray ray;
@@ -20,7 +22,6 @@ public class ViewFinder : MonoBehaviour {
             if (Physics.Raycast(ray, out hit))
             {
                 gazeStart = hit.point;
-                placeCursor(gazeStart, 1);
             }
                 
         }
@@ -29,27 +30,41 @@ public class ViewFinder : MonoBehaviour {
             if (Physics.Raycast(ray, out hit))
             {
                 gazeEnd = hit.point;
+                placeCursor();
+            }
+        }
+
+        if (Input.GetButton(actionButton))
+        {
+            if (Physics.Raycast(ray, out hit))
+            {
+                Debug.DrawLine(gazeStart, hit.point);
             }
         }
     }
 
-    void placeCursor (Vector3 location,int type)
-    {
-        Transform properties;
-        properties.position = Vector3.one;
-        Instantiate(cursor);
+    void placeCursor ()
+    { 
+        if (checkDistance(gazeStart, gazeEnd, 1))
+        {
+            Vector3 heading = gazeEnd - gazeStart;
+            float distance = heading.magnitude;
+            Vector3 direction = heading / distance;
+            Quaternion rotation = Quaternion.LookRotation(direction);
+            Instantiate(directionCursor, gazeStart, rotation);
+        }
+        else
+        {
+            Instantiate(pointCursor, gazeEnd, Quaternion.identity);
+        }
+
+        oldCursor = GameObject.FindGameObjectWithTag("Cursor").GetComponent<CursorController>();
+        oldCursor.ageCheck();
     }
     
     bool checkDistance (Vector3 start, Vector3 end, float minimum)
     {
         float distance = Mathf.Sqrt(Mathf.Pow(end.x - start.x, 2) + Mathf.Pow(end.y - start.y, 2) + Mathf.Pow(end.z - start.z, 2));
-        if (distance > minimum)
-        {
-            return true;
-        }
-         else
-        {
-            return false;
-        }
+        if (distance > minimum) { return true; } else { return false; }
     }
 }

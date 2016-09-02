@@ -3,17 +3,18 @@ using System.Collections;
 
 public class CursorController : MonoBehaviour
 {
-    public float floatDistance;
-    private float trueFloat;
+    private float floatDistance;
+    private ViewFinder controller;
+    private Transform gameField;
+    private Vector3 spawnPosition;
 
-    public void Awake()
+    public void OnEnable ()
     {
+        floatDistance = 0.1f;
+        spawnPosition = transform.position;
         parentField();
-    }
-
-    public void OnEnable()
-    {
-
+        controller = GameObject.Find("Main Camera").GetComponent<ViewFinder>();
+        //transform.rotation = new Quaternion(transform.rotation.x, transform.rotation.y, 0, transform.rotation.w);
     }
 
     void parentField ()
@@ -26,8 +27,32 @@ public class CursorController : MonoBehaviour
 
         if (Physics.Raycast(ray, out hit))
         {
-            trueFloat = hit.transform.localScale.y / 2 + floatDistance;
-            Vector3 start = new Vector3(hit.transform.position.x,hit.transform.position.y + trueFloat,hit.transform.position.z);
+            gameField = hit.transform;
+            transform.position = localTranslate(hit.point);
         }
+    }
+
+    public void ageCheck ()
+    {
+        if (controller.gazeEnd == spawnPosition)
+        {
+            Debug.Log("Cursor on frame " + Time.frameCount + " keeping alive.");
+        }
+        else if (controller.gazeStart == spawnPosition)
+        {
+            Debug.Log("Cursor on frame " + Time.frameCount + " keeping alive.");
+        }
+        else
+        {
+            Debug.Log("Cursor on frame " + Time.frameCount + " self-terminating...");
+            Destroy(transform.gameObject);
+        }
+    }
+
+    Vector3 localTranslate (Vector3 original)
+    {
+        float trueFloat = gameField.localScale.y / 2 + floatDistance;
+        Vector3 translate = new Vector3(original.x, trueFloat, original.z);
+        return translate;
     }
 }

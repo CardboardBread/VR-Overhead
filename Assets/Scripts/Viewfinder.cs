@@ -6,6 +6,7 @@ public class ViewFinder : MonoBehaviour {
     public string actionButton;
     private Vector3 gazeStart;
     private Vector3 gazeEnd;
+    public Object cursor;
 	
 	void Update () {
         Ray ray;
@@ -32,10 +33,11 @@ public class ViewFinder : MonoBehaviour {
         }
     }
 
-    void placeCursor (Vector3 position, int type)
+    void placeCursor (Vector3 location,int type)
     {
-        // generate cursor prefab at position, tell it what type it needs to be
-        // type is determined from checkdistance, if a direction is to be faced once the destination is reached
+        Transform properties;
+        properties.position = Vector3.one;
+        Instantiate(cursor);
     }
     
     bool checkDistance (Vector3 start, Vector3 end, float minimum)
